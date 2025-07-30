@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const io = new Server(server, {
   path: '/socket.io/',
+  allowEIO3: true, // Add this line
   cors: {
     origin: "*", // Allow all origins for development. Restrict in production.
     methods: ["GET", "POST"]
