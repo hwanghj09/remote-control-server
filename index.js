@@ -76,14 +76,14 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('adbCommand', (data) => {
-    console.log(`Received adbCommand event from ${socket.id}:`, data);
+  socket.on('executeCommand', (data) => {
+    console.log(`Received executeCommand event from ${socket.id}:`, data);
     const pcClient = clients.pcs.get(socket.id);
     if (pcClient && pcClient.selectedAndroidId) {
       const targetAndroid = clients.androids.get(pcClient.selectedAndroidId);
       if (targetAndroid) {
-        console.log(`Relaying ADB command from PC ${socket.id} to Android ${pcClient.selectedAndroidId}: ${data.command}`);
-        targetAndroid.socket.emit('executeAdb', { command: data.command });
+        console.log(`Relaying command from PC ${socket.id} to Android ${pcClient.selectedAndroidId}: ${data.type} ${JSON.stringify(data.payload)}`);
+        targetAndroid.socket.emit('executeCommand', { type: data.type, payload: data.payload });
       } else {
         socket.emit('error', { message: 'Selected Android device is no longer connected' });
       }
@@ -92,14 +92,14 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('sendNotification', (data) => {
-    console.log(`Received sendNotification event from ${socket.id}:`, data);
+  socket.on('showAlert', (data) => {
+    console.log(`Received showAlert event from ${socket.id}:`, data);
     const pcClient = clients.pcs.get(socket.id);
     if (pcClient && pcClient.selectedAndroidId) {
       const targetAndroid = clients.androids.get(pcClient.selectedAndroidId);
       if (targetAndroid) {
-        console.log(`Relaying notification to Android ${pcClient.selectedAndroidId}: ${data.message}`);
-        targetAndroid.socket.emit('showNotification', { message: data.message });
+        console.log(`Relaying alert to Android ${pcClient.selectedAndroidId}: ${data.message}`);
+        targetAndroid.socket.emit('showAlert', { message: data.message });
       } else {
         socket.emit('error', { message: 'Selected Android device is no longer connected' });
       }
