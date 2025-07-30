@@ -44,8 +44,10 @@ function broadcastAndroidList() {
 
 io.on('connection', (socket) => {
   console.log(`Client connected: ${socket.id}`);
+  console.log(`Total connected clients: ${io.engine.clientsCount}`);
 
   socket.on('register', (data) => {
+    console.log(`Received register event from ${socket.id}:`, data);
     if (data.as === 'android') {
       clients.androids.set(socket.id, { socket, deviceName: data.deviceName || 'Unnamed Device' });
       console.log(`Android client registered: ${socket.id} (${clients.androids.get(socket.id).deviceName})`);
@@ -60,6 +62,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('selectAndroid', (data) => {
+    console.log(`Received selectAndroid event from ${socket.id}:`, data);
     const pcClient = clients.pcs.get(socket.id);
     if (pcClient) {
       if (clients.androids.has(data.targetId)) {
@@ -73,6 +76,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('adbCommand', (data) => {
+    console.log(`Received adbCommand event from ${socket.id}:`, data);
     const pcClient = clients.pcs.get(socket.id);
     if (pcClient && pcClient.selectedAndroidId) {
       const targetAndroid = clients.androids.get(pcClient.selectedAndroidId);
@@ -88,6 +92,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+    console.log(`Total connected clients: ${io.engine.clientsCount}`);
     if (clients.androids.has(socket.id)) {
       const deviceName = clients.androids.get(socket.id).deviceName;
       clients.androids.delete(socket.id);
@@ -97,5 +103,9 @@ io.on('connection', (socket) => {
       clients.pcs.delete(socket.id);
       console.log(`PC client disconnected: ${socket.id}`);
     }
+  });
+
+  socket.on('error', (error) => {
+    console.error(`Socket error for ${socket.id}:`, error);
   });
 });
