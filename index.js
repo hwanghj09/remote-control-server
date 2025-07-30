@@ -92,6 +92,22 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('sendNotification', (data) => {
+    console.log(`Received sendNotification event from ${socket.id}:`, data);
+    const pcClient = clients.pcs.get(socket.id);
+    if (pcClient && pcClient.selectedAndroidId) {
+      const targetAndroid = clients.androids.get(pcClient.selectedAndroidId);
+      if (targetAndroid) {
+        console.log(`Relaying notification to Android ${pcClient.selectedAndroidId}: ${data.message}`);
+        targetAndroid.socket.emit('showNotification', { message: data.message });
+      } else {
+        socket.emit('error', { message: 'Selected Android device is no longer connected' });
+      }
+    } else {
+      socket.emit('error', { message: 'No Android device selected or PC client not registered' });
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
     console.log(`Total connected clients: ${io.engine.clientsCount}`);
