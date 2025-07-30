@@ -36,6 +36,7 @@ function broadcastAndroidList() {
     id: client.socket.id,
     deviceName: client.deviceName
   }));
+  console.log(`Broadcasting Android list to ${clients.pcs.size} PCs:`, androidList); // <-- 이 로그 추가
   
   clients.pcs.forEach(pcClient => {
     pcClient.socket.emit('androidList', { devices: androidList });
