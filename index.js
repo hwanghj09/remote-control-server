@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const io = new Server(server, {
   path: '/socket.io/',
+  transports: ['websocket'], // Force websocket transport
   cors: {
     origin: "*", // Allow all origins for development. Restrict in production.
     methods: ["GET", "POST"]
